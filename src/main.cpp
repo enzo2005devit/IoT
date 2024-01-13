@@ -24,21 +24,28 @@ WiFiManager wm;
 #define SW_LUZ_3 A0
 #define SW_LUZ_4 D7
 
-
-
-bool estadoAnterior = LOW;
+void ICACHE_RAM_ATTR interrupcionD0();
+void ICACHE_RAM_ATTR interrupcionD5();
+void ICACHE_RAM_ATTR interrupcionA0();
+void ICACHE_RAM_ATTR interrupcionD7();
 
 
 void setup(){
+  
   Serial.begin(115200);
   pinMode(LUZ_1, OUTPUT);
   pinMode(LUZ_2, OUTPUT);
   pinMode(LUZ_3, OUTPUT);
   pinMode(LUZ_4, OUTPUT);
-  pinMode(SW_LUZ_1, INPUT_PULLUP);
-  pinMode(SW_LUZ_2, INPUT_PULLUP);
-  pinMode(SW_LUZ_3, INPUT_PULLUP);
-  pinMode(SW_LUZ_4, INPUT_PULLUP);
+  pinMode(SW_LUZ_1, INPUT);
+  pinMode(SW_LUZ_2, INPUT);
+  pinMode(SW_LUZ_3, INPUT);
+  pinMode(SW_LUZ_4, INPUT);
+
+  attachInterrupt(digitalPinToInterrupt(SW_LUZ_1), interrupcionD0, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(SW_LUZ_2), interrupcionD5, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(SW_LUZ_3), interrupcionA0, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(SW_LUZ_4), interrupcionD7, CHANGE);
 
   bool res;
 
@@ -59,36 +66,19 @@ void setup(){
 
 void loop() {
   // wait for WiFi connection
-  int estadoActual = digitalRead(SW_LUZ_1);
 
 if ((WiFiMulti.run() == WL_CONNECTED)) {
     client.setInsecure();
     
     if (!mqttclient.connected()) {
         if(mqttclient.connect("ESP8266", "ESP8266","Juve2020"))
-        Serial.println("conectadoooo");
+        Serial.println("conectado");
         mqttclient.subscribe("PE_LUZ_1");
         mqttclient.subscribe("PE_LUZ_2");
     }
     
-    else 
+    else
       mqttclient.loop();
-  }
-
-  if (estadoActual != estadoAnterior) {
-    // Cambia el estado del pin a cambiar (pinACambiar) al estado contrario
-    digitalWrite(LUZ_1, !estadoActual);
-
-    // Puedes incluir acciones adicionales aquí si es necesario
-
-    // Imprime información en el puerto serie
-    Serial.print("Cambio en el pin ");
-    Serial.print(SW_LUZ_1);
-    Serial.print(". Nuevo estado: ");
-    Serial.println(estadoActual);
-
-    // Actualiza el estado anterior
-    estadoAnterior = estadoActual;
   }
 }
 
@@ -97,26 +87,67 @@ void callback(char* topic, byte* payload, unsigned int length){
 
      if (strcmp(topic, "PE_LUZ_1") == 0){
       if(payload[0] == '1'){
-          Serial.println("Led on");
-          digitalWrite(LUZ_2, HIGH);
-      }
-
-      if(payload[0] == '0'){
-      Serial.println("Led off");
-      digitalWrite(LUZ_2, LOW);
+          Serial.println("Led");
+          digitalWrite(LUZ_1, !digitalRead(LUZ_1));
       }
     }
 
     if (strcmp(topic, "PE_LUZ_2") == 0){
-
       if(payload[0] == '1'){
-          Serial.println("Led on");
-          digitalWrite(LUZ_2, HIGH);
-        }
+          Serial.println("Led");
+          digitalWrite(LUZ_2, !digitalRead(LUZ_2));
+      }                                                                                                                                                                       
+    }
 
-      if(payload[0] == '0'){
-      Serial.println("Led off");
-      digitalWrite(LUZ_2, LOW);
-    }                                                                                                                                                                         
-  }
+    if (strcmp(topic, "PE_LUZ_3") == 0){
+      if(payload[0] == '1'){
+          Serial.println("Led");
+          digitalWrite(LUZ_3, !digitalRead(LUZ_3));
+      }                                                                                                                                                                       
+    }
+
+    if (strcmp(topic, "PE_LUZ_4") == 0){
+      if(payload[0] == '1'){
+          Serial.println("Led");
+          digitalWrite(LUZ_4, !digitalRead(LUZ_4));
+      }                                                                                                                                                                       
+    }
+}
+
+void ICACHE_RAM_ATTR interrupcionD0() {
+
+delay(50);
+
+if (digitalRead(SW_LUZ_1) != digitalRead(LUZ_1)) 
+    digitalWrite(LUZ_1, !digitalRead(LUZ_1));
+  //if(digitalRead(SW_LUZ_1) == HIGH)
+    //digitalWrite(LUZ_1, HIGH);
+if (digitalRead(SW_LUZ_1) == digitalRead(LUZ_1)) 
+    digitalWrite(LUZ_1, !digitalRead(LUZ_1));
+  //else
+    //digitalWrite(LUZ_1, LOW);
+}
+
+void ICACHE_RAM_ATTR interrupcionD5(){
+  if(digitalRead(SW_LUZ_2) == HIGH)
+    digitalWrite(LUZ_2, HIGH);
+
+  else
+    digitalWrite(LUZ_2, LOW);
+}
+
+void ICACHE_RAM_ATTR interrupcionA0(){
+  if(digitalRead(SW_LUZ_3) == HIGH)
+    digitalWrite(LUZ_3, HIGH);
+
+  else
+    digitalWrite(LUZ_3, LOW);
+}
+
+void ICACHE_RAM_ATTR interrupcionD7(){
+  if(digitalRead(SW_LUZ_4) == HIGH)
+    digitalWrite(LUZ_4, HIGH);
+
+  else
+    digitalWrite(LUZ_4, LOW);
 }
