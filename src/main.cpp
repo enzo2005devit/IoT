@@ -15,18 +15,31 @@ PubSubClient mqttclient(client);
 
 WiFiManager wm;
 
-int LUZ_1 = 4;
-int LUZ_2 = 3;
-int SW_LUZ_2 = 2;
-int SW_LUZ_1 = 5;
+#define LUZ_1 D4
+#define LUZ_2 D3
+#define LUZ_3 D2
+#define LUZ_4 D8
+#define SW_LUZ_1 D5
+#define SW_LUZ_2 D0 //NO SE DEBE USAR NUNCA EL PIN 1, 6, 7 y 8 COMO SALIDA NI ENTRADA PORQUE MUERE EL ESP
+#define SW_LUZ_3 A0
+#define SW_LUZ_4 D7
+
+
+
+bool estadoAnterior = LOW;
+
 
 void setup(){
   Serial.begin(115200);
   pinMode(LUZ_1, OUTPUT);
   pinMode(LUZ_2, OUTPUT);
-  pinMode(SW_LUZ_2, INPUT);
-  pinMode(SW_LUZ_1, INPUT);
-  //pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(LUZ_3, OUTPUT);
+  pinMode(LUZ_4, OUTPUT);
+  pinMode(SW_LUZ_1, INPUT_PULLUP);
+  pinMode(SW_LUZ_2, INPUT_PULLUP);
+  pinMode(SW_LUZ_3, INPUT_PULLUP);
+  pinMode(SW_LUZ_4, INPUT_PULLUP);
+
   bool res;
 
       res = wm.autoConnect("AutoConnectAP","password"); // password protected ap
@@ -46,6 +59,8 @@ void setup(){
 
 void loop() {
   // wait for WiFi connection
+  int estadoActual = digitalRead(SW_LUZ_1);
+
 if ((WiFiMulti.run() == WL_CONNECTED)) {
     client.setInsecure();
     
@@ -58,7 +73,22 @@ if ((WiFiMulti.run() == WL_CONNECTED)) {
     
     else 
       mqttclient.loop();
-    
+  }
+
+  if (estadoActual != estadoAnterior) {
+    // Cambia el estado del pin a cambiar (pinACambiar) al estado contrario
+    digitalWrite(LUZ_1, !estadoActual);
+
+    // Puedes incluir acciones adicionales aquí si es necesario
+
+    // Imprime información en el puerto serie
+    Serial.print("Cambio en el pin ");
+    Serial.print(SW_LUZ_1);
+    Serial.print(". Nuevo estado: ");
+    Serial.println(estadoActual);
+
+    // Actualiza el estado anterior
+    estadoAnterior = estadoActual;
   }
 }
 
@@ -68,12 +98,12 @@ void callback(char* topic, byte* payload, unsigned int length){
      if (strcmp(topic, "PE_LUZ_1") == 0){
       if(payload[0] == '1'){
           Serial.println("Led on");
-          digitalWrite(LED_BUILTIN, HIGH);
+          digitalWrite(LUZ_2, HIGH);
       }
 
       if(payload[0] == '0'){
       Serial.println("Led off");
-      digitalWrite(LED_BUILTIN, LOW);
+      digitalWrite(LUZ_2, LOW);
       }
     }
 
@@ -81,12 +111,12 @@ void callback(char* topic, byte* payload, unsigned int length){
 
       if(payload[0] == '1'){
           Serial.println("Led on");
-          digitalWrite(LED_BUILTIN, HIGH);
+          digitalWrite(LUZ_2, HIGH);
         }
 
       if(payload[0] == '0'){
       Serial.println("Led off");
-      digitalWrite(LED_BUILTIN, LOW);
+      digitalWrite(LUZ_2, LOW);
     }                                                                                                                                                                         
   }
 }
