@@ -29,7 +29,6 @@ void ICACHE_RAM_ATTR interrupcionD5();
 void ICACHE_RAM_ATTR interrupcionA0();
 void ICACHE_RAM_ATTR interrupcionD7();
 
-
 void setup(){
   
   Serial.begin(115200);
@@ -55,7 +54,7 @@ void setup(){
       Serial.println("Failed to connect");
 
     else 
-        Serial.println("connected...yeey :)");
+        Serial.println("WIFI connected");
 
   WiFi.mode(WIFI_STA);
   WiFiMulti.run();
@@ -72,7 +71,7 @@ if ((WiFiMulti.run() == WL_CONNECTED)) {
     
     if (!mqttclient.connected()) {
         if(mqttclient.connect("ESP8266", "ESP8266","Juve2020"))
-        Serial.println("conectado");
+        Serial.println("BROKER connected");
         mqttclient.subscribe("PE_LUZ_1");
         mqttclient.subscribe("PE_LUZ_2");
     }
@@ -85,69 +84,63 @@ if ((WiFiMulti.run() == WL_CONNECTED)) {
 
 void callback(char* topic, byte* payload, unsigned int length){
 
-     if (strcmp(topic, "PE_LUZ_1") == 0){
-      if(payload[0] == '1'){
-          Serial.println("Led");
-          digitalWrite(LUZ_1, !digitalRead(LUZ_1));
-      }
+    if (strcmp(topic, "PE_LUZ_1") == 0){
+    if(payload[0] == '1')
+      interrupcionD0();
     }
 
     if (strcmp(topic, "PE_LUZ_2") == 0){
-      if(payload[0] == '1'){
-          Serial.println("Led");
-          digitalWrite(LUZ_2, !digitalRead(LUZ_2));
-      }                                                                                                                                                                       
+      if(payload[0] == '1')
+        interrupcionD5();                                                                                                                                                                       
     }
 
     if (strcmp(topic, "PE_LUZ_3") == 0){
-      if(payload[0] == '1'){
-          Serial.println("Led");
-          digitalWrite(LUZ_3, !digitalRead(LUZ_3));
-      }                                                                                                                                                                       
+      if(payload[0] == '1')
+        interrupcionA0();                                                                                                                                                                       
     }
 
     if (strcmp(topic, "PE_LUZ_4") == 0){
-      if(payload[0] == '1'){
-          Serial.println("Led");
-          digitalWrite(LUZ_4, !digitalRead(LUZ_4));
-      }                                                                                                                                                                       
+      if(payload[0] == '1')
+        interrupcionD7();                                                                                                                                                                      
     }
 }
 
 void ICACHE_RAM_ATTR interrupcionD0() {
+  static unsigned long lastInterruptTime = 0;
+  unsigned long interruptTime = millis();
 
-delay(50);
-
-if (digitalRead(SW_LUZ_1) != digitalRead(LUZ_1)) 
-    digitalWrite(LUZ_1, !digitalRead(LUZ_1));
-  //if(digitalRead(SW_LUZ_1) == HIGH)
-    //digitalWrite(LUZ_1, HIGH);
-if (digitalRead(SW_LUZ_1) == digitalRead(LUZ_1)) 
-    digitalWrite(LUZ_1, !digitalRead(LUZ_1));
-  //else
-    //digitalWrite(LUZ_1, LOW);
+  if (interruptTime - lastInterruptTime > 50) {
+    lastInterruptTime = interruptTime;
+      digitalWrite(LUZ_1, !digitalRead(LUZ_1));
+  }
 }
 
 void ICACHE_RAM_ATTR interrupcionD5(){
-  if(digitalRead(SW_LUZ_2) == HIGH)
-    digitalWrite(LUZ_2, HIGH);
+  static unsigned long lastInterruptTime = 0;
+  unsigned long interruptTime = millis();
 
-  else
-    digitalWrite(LUZ_2, LOW);
+  if (interruptTime - lastInterruptTime > 50) {
+    lastInterruptTime = interruptTime;
+      digitalWrite(LUZ_2, !digitalRead(LUZ_2));
+  }
 }
 
 void ICACHE_RAM_ATTR interrupcionA0(){
-  if(digitalRead(SW_LUZ_3) == HIGH)
-    digitalWrite(LUZ_3, HIGH);
+  static unsigned long lastInterruptTime = 0;
+  unsigned long interruptTime = millis();
 
-  else
-    digitalWrite(LUZ_3, LOW);
+  if (interruptTime - lastInterruptTime > 50) {
+    lastInterruptTime = interruptTime;
+      digitalWrite(LUZ_3, !digitalRead(LUZ_3));
+  }
 }
 
 void ICACHE_RAM_ATTR interrupcionD7(){
-  if(digitalRead(SW_LUZ_4) == HIGH)
-    digitalWrite(LUZ_4, HIGH);
+  static unsigned long lastInterruptTime = 0;
+  unsigned long interruptTime = millis();
 
-  else
-    digitalWrite(LUZ_4, LOW);
+  if (interruptTime - lastInterruptTime > 50) {
+    lastInterruptTime = interruptTime;
+      digitalWrite(LUZ_4, !digitalRead(LUZ_4));
+  }
 }
