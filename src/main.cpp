@@ -20,14 +20,14 @@ WiFiManager wm;
 #define LUZ_3 D2
 #define LUZ_4 D8
 #define SW_LUZ_1 D5
-#define SW_LUZ_2 D0 //NO SE DEBE USAR NUNCA EL PIN 1, 6, 7 y 8 COMO SALIDA NI ENTRADA PORQUE MUERE EL ESP
-#define SW_LUZ_3 A0
+#define SW_LUZ_2 D1 //NO SE DEBE USAR NUNCA EL PIN 1, 6, 7 y 8 COMO SALIDA NI ENTRADA PORQUE MUERE EL ESP
+#define SW_LUZ_3 D6
 #define SW_LUZ_4 D7
 
-void ICACHE_RAM_ATTR interrupcionD0();
-void ICACHE_RAM_ATTR interrupcionD5();
-void ICACHE_RAM_ATTR interrupcionA0();
-void ICACHE_RAM_ATTR interrupcionD7();
+void ICACHE_RAM_ATTR Luz1();
+void ICACHE_RAM_ATTR Luz2();
+void ICACHE_RAM_ATTR Luz3();
+void ICACHE_RAM_ATTR Luz4();
 
 void setup(){
   
@@ -36,15 +36,15 @@ void setup(){
   pinMode(LUZ_2, OUTPUT);
   pinMode(LUZ_3, OUTPUT);
   pinMode(LUZ_4, OUTPUT);
-  pinMode(SW_LUZ_1, INPUT);
-  pinMode(SW_LUZ_2, INPUT);
-  pinMode(SW_LUZ_3, INPUT);
-  pinMode(SW_LUZ_4, INPUT);
+  pinMode(SW_LUZ_1, INPUT_PULLUP);
+  pinMode(SW_LUZ_2, INPUT_PULLUP);
+  pinMode(SW_LUZ_3, INPUT_PULLUP);
+  pinMode(SW_LUZ_4, INPUT_PULLUP);
 
-  attachInterrupt(digitalPinToInterrupt(SW_LUZ_1), interrupcionD0, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(SW_LUZ_2), interrupcionD5, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(SW_LUZ_3), interrupcionA0, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(SW_LUZ_4), interrupcionD7, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(SW_LUZ_1), Luz1, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(SW_LUZ_2), Luz2, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(SW_LUZ_3), Luz3, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(SW_LUZ_4), Luz4, CHANGE);
 
   bool res;
 
@@ -72,8 +72,7 @@ if ((WiFiMulti.run() == WL_CONNECTED)) {
     if (!mqttclient.connected()) {
         if(mqttclient.connect("ESP8266", "ESP8266","Juve2020"))
         Serial.println("BROKER connected");
-        mqttclient.subscribe("PE_LUZ_1");
-        mqttclient.subscribe("PE_LUZ_2");
+        mqttclient.subscribe("DISP_1");
     }
     
     else
@@ -84,63 +83,69 @@ if ((WiFiMulti.run() == WL_CONNECTED)) {
 
 void callback(char* topic, byte* payload, unsigned int length){
 
-    if (strcmp(topic, "PE_LUZ_1") == 0){
+    if (strcmp(topic, "DISP_1") == 0){
     if(payload[0] == '1')
-      interrupcionD0();
+      Luz1();
     }
 
-    if (strcmp(topic, "PE_LUZ_2") == 0){
-      if(payload[0] == '1')
-        interrupcionD5();                                                                                                                                                                       
+    if (strcmp(topic, "DISP_1") == 0){
+      if(payload[0] == '2')
+        Luz2();                                                                                                                                                                       
     }
 
-    if (strcmp(topic, "PE_LUZ_3") == 0){
-      if(payload[0] == '1')
-        interrupcionA0();                                                                                                                                                                       
+    if (strcmp(topic, "DISP_1") == 0){
+      if(payload[0] == '3')
+        Luz3();
+        Serial.println("int3");                                                                                                                                                               
     }
 
-    if (strcmp(topic, "PE_LUZ_4") == 0){
-      if(payload[0] == '1')
-        interrupcionD7();                                                                                                                                                                      
+    if (strcmp(topic, "DISP_1") == 0){
+      if(payload[0] == '4')
+        Luz4();
+        Serial.println("int4");                                                                                                                                                                 
     }
 }
 
-void ICACHE_RAM_ATTR interrupcionD0() {
+void ICACHE_RAM_ATTR Luz1() {
   static unsigned long lastInterruptTime = 0;
   unsigned long interruptTime = millis();
 
   if (interruptTime - lastInterruptTime > 50) {
     lastInterruptTime = interruptTime;
       digitalWrite(LUZ_1, !digitalRead(LUZ_1));
+      Serial.println("int1");
   }
 }
 
-void ICACHE_RAM_ATTR interrupcionD5(){
+void ICACHE_RAM_ATTR Luz2(){
   static unsigned long lastInterruptTime = 0;
   unsigned long interruptTime = millis();
 
   if (interruptTime - lastInterruptTime > 50) {
     lastInterruptTime = interruptTime;
       digitalWrite(LUZ_2, !digitalRead(LUZ_2));
+      Serial.println("int2");
   }
 }
 
-void ICACHE_RAM_ATTR interrupcionA0(){
+void ICACHE_RAM_ATTR Luz3(){
   static unsigned long lastInterruptTime = 0;
   unsigned long interruptTime = millis();
 
   if (interruptTime - lastInterruptTime > 50) {
     lastInterruptTime = interruptTime;
       digitalWrite(LUZ_3, !digitalRead(LUZ_3));
+      Serial.println("int3");
   }
 }
 
-void ICACHE_RAM_ATTR interrupcionD7(){
+void ICACHE_RAM_ATTR Luz4(){
   static unsigned long lastInterruptTime = 0;
   unsigned long interruptTime = millis();
 
   if (interruptTime - lastInterruptTime > 50) {
     lastInterruptTime = interruptTime;
       digitalWrite(LUZ_4, !digitalRead(LUZ_4));
+      Serial.println("int4");
   }
 }
