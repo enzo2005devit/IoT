@@ -1,0 +1,127 @@
+esphome:
+  name: xd
+  friendly_name: XD
+
+esp8266:
+  board: esp01_1m
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "6bssvgRoODu8RnobEixgyaZ4qljT+iCvUJ8Qbr5J+u4="
+
+ota:
+  password: "e49fed589dbce947c4e5e26785c7022b"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Xd Fallback Hotspot"
+    password: "jZs5KtHDA6ae"
+
+captive_portal:
+
+light:
+  - platform: binary
+    name: "LUZ_1"
+    output: luz1
+    id: idluz1
+    
+
+  - platform: binary
+    name: "LUZ_2"
+    output: luz2
+    id: idluz2
+    
+
+  - platform: binary
+    name: "LUZ_3"
+    output: luz3
+    id: idluz3
+
+  - platform: binary
+    name: "LUZ_4"
+    output: luz4
+    id: idluz4
+
+
+output:
+  - id: luz1
+    platform: gpio
+    pin: GPIO16
+
+  - id: luz2
+    platform: gpio
+    pin: GPIO0
+
+  - id: luz3
+    platform: gpio
+    pin: GPIO4
+
+  - id: luz4
+    platform: gpio
+    pin: GPIO15
+
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO14
+      mode: INPUT_PULLUP
+      inverted: False
+    name: "Interruptor Luz 1"
+    on_press:
+      then:
+        light.toggle: idluz1
+    on_release:
+      then:
+        light.toggle: idluz1
+
+
+  - platform: gpio
+    pin:
+      number: GPIO5
+      mode: INPUT_PULLUP
+      inverted: False
+    name: "Interruptor Luz 2"
+    on_press:
+      then:
+        - light.toggle: idluz2
+    on_release:
+      then:
+        light.toggle: idluz2
+
+        
+
+  - platform: gpio
+    pin:
+      number: GPIO12
+      mode: INPUT_PULLUP
+      inverted: False
+    name: "Interruptor Luz 3"
+    on_press:
+      then:
+        - light.toggle: idluz3
+    on_release:
+      then:
+        light.toggle: idluz3
+
+
+  - platform: gpio
+    pin:
+      number: GPIO13
+      mode: INPUT_PULLUP
+      inverted: False
+    name: "Interruptor Luz 4"
+    on_press:
+      then:
+        - light.toggle: idluz4
+    on_release:
+      then:
+        light.toggle: idluz4
