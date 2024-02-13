@@ -9,10 +9,12 @@ const char* mqttusuario = "esp8266";          // Usuario MQTT en Home Assistant
 const char* mqttpass = "Juve2020";             // Contraseña para el usuario MQTT en Home Assistant
 const char* OTA_password = "PASS_OTA";         // Contraseña OTA
 #define CLIENT_ID "LUZ_PRUEBA"               // ID del dispositivo, debe ser único en tu sistema
+#define MQTT_GENERALTOPIC_COMMAND "todasLasLucesCommand" 
 #define MQTT_TOPIC1_COMMAND "luces/1/comando"              // Topic luz Nº1
 #define MQTT_TOPIC2_COMMAND "luces/2/comando"              // Topic luz Nº2
 #define MQTT_TOPIC3_COMMAND "luces/3/comando"              // Topic luz Nº3
 #define MQTT_TOPIC4_COMMAND "luces/4/comando"              // Topic luz Nº4
+#define MQTT_GENERALTOPIC_STATE "todasLasLucesState"
 #define MQTT_TOPIC1_STATE "luces/1/estado"
 #define MQTT_TOPIC2_STATE "luces/2/estado"
 #define MQTT_TOPIC3_STATE "luces/3/estado"
@@ -179,9 +181,28 @@ void callback(char* topic, byte* payload, unsigned int length){  // Función par
     }
     else if((char)payload[0] == '0')
       Luz4();
-
   }
+
+    if (strcmp(topic, MQTT_GENERALTOPIC_COMMAND) == 0){
+      if ((char)payload[0] == '1') {
+        Luz1();
+        Luz2();
+        Luz3();
+        Luz4();
+        client.publish(MQTT_GENERALTOPIC_STATE, "1", true);
+        
+    }
+    
+    else if((char)payload[0] == '0'){
+        Luz1();
+        Luz2();
+        Luz3();
+        Luz4();
+        client.publish(MQTT_GENERALTOPIC_STATE, "0", true);
+  }
+ }
 }
+
 
 
 void reconnect(){  // Función para reconectar
@@ -197,7 +218,8 @@ void reconnect(){  // Función para reconectar
       client.subscribe(MQTT_TOPIC1_STATE);
       client.subscribe(MQTT_TOPIC2_STATE);
       client.subscribe(MQTT_TOPIC3_STATE);
-      client.subscribe(MQTT_TOPIC4_STATE); 
+      client.subscribe(MQTT_TOPIC4_STATE);
+      client.subscribe(MQTT_GENERALTOPIC_COMMAND);
   }
     
     else {                                                        // Si no hemos podido conectar:
@@ -244,6 +266,7 @@ void ICACHE_RAM_ATTR Luz2(){
     Serial.println("int2");
   }
 }
+
 void ICACHE_RAM_ATTR Luz3(){
   static unsigned long lastInterruptTime = 0;
   unsigned long interruptTime = millis();
