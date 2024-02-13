@@ -6,7 +6,6 @@ const char* mqtt_server = "192.168.1.36";  // I.P. de tu servidor MQTT
 int mqttport = 1883;                       // Puerto para MQTT
 const char* mqttusuario = "esp8266";          // Usuario MQTT en Home Assistant
 const char* mqttpass = "Juve2020";             // Contraseña para el usuario MQTT en Home Assistant
-const char* OTA_password = "PASS_OTA";         // Contraseña OTA
 #define CLIENT_ID "LUZ_PRUEBA"               // ID del dispositivo, debe ser único en tu sistema
 #define MQTT_GENERALTOPIC_COMMAND "todasLasLucesCommand" 
 #define MQTT_TOPIC1_COMMAND "luces/1/comando"              // Topic luz Nº1
@@ -82,6 +81,8 @@ void setup() {
 
 void loop() {
 
+
+
   //// INTERRUPTOR 1 ////
 
   //// FIN CODIGO INTERRUPTORES ////
@@ -150,36 +151,52 @@ void callback(char* topic, byte* payload, unsigned int length){  // Función par
     if (strcmp(topic, MQTT_TOPIC1_COMMAND) == 0){  // Si recibimos un mensaje del topic configurado en "topic_LUZ_1":
       if ((char)payload[0] == '1') {         // Si el mensaje es "1":
         digitalWrite(LUZ_1, HIGH);
+        client.publish(MQTT_TOPIC1_STATE, "1", true);
     }
-    else if((char)payload[0] == '0')
+
+    else if((char)payload[0] == '0'){
       digitalWrite(LUZ_1, LOW);
+      client.publish(MQTT_TOPIC1_STATE, "0", true);
+    }
   }
 
 
     if (strcmp(topic, MQTT_TOPIC2_COMMAND) == 0){
       if ((char)payload[0] == '1') {
         digitalWrite(LUZ_2, HIGH);
+        client.publish(MQTT_TOPIC2_STATE, "1", true);
     }
-    else if((char)payload[0] == '0')
-        digitalWrite(LUZ_2, LOW);
-  }
 
+    else if((char)payload[0] == '0'){
+        digitalWrite(LUZ_2, LOW);
+        client.publish(MQTT_TOPIC2_STATE, "0", true);
+    }
+  }
+s
 
     if (strcmp(topic, MQTT_TOPIC3_COMMAND) == 0){
       if ((char)payload[0] == '1') {
         digitalWrite(LUZ_3, HIGH);
+        client.publish(MQTT_TOPIC3_STATE, "1", true);
     }
-    else if((char)payload[0] == '0')
+
+    else if((char)payload[0] == '0'){
       digitalWrite(LUZ_3, LOW);
+      client.publish(MQTT_TOPIC3_STATE, "0", true);
+    }
   }
 
 
     if (strcmp(topic, MQTT_TOPIC4_COMMAND) == 0){
       if ((char)payload[0] == '1') {
         digitalWrite(LUZ_4, HIGH);
+        client.publish(MQTT_TOPIC4_STATE, "1", true);
     }
-    else if((char)payload[0] == '0')
+
+    else if((char)payload[0] == '0'){
       digitalWrite(LUZ_4, LOW);
+      client.publish(MQTT_TOPIC4_STATE, "0", true);
+    }
   }
 
     if (strcmp(topic, MQTT_GENERALTOPIC_COMMAND) == 0){
@@ -209,8 +226,6 @@ void callback(char* topic, byte* payload, unsigned int length){  // Función par
   }
  }
 }
-
-
 
 void reconnect(){  // Función para reconectar
 
