@@ -1,6 +1,5 @@
 #include <ESP8266WiFi.h>   // Biblioteca necesaria para las conexiones Wifi de las placas con chip ESP8266
 #include <PubSubClient.h>  // Biblioteca ecesaria para poder publicar y recibir mensajes MQTT
-#include <ArduinoOTA.h>    // Biblioteca necesaria para poder programar por OTA
 #include <WiFiManager.h>
 ///// PARAMETROS CONFIGURABLES /////
 const char* mqtt_server = "192.168.1.36";  // I.P. de tu servidor MQTT
@@ -150,55 +149,63 @@ void callback(char* topic, byte* payload, unsigned int length){  // Función par
 
     if (strcmp(topic, MQTT_TOPIC1_COMMAND) == 0){  // Si recibimos un mensaje del topic configurado en "topic_LUZ_1":
       if ((char)payload[0] == '1') {         // Si el mensaje es "1":
-        Luz1();
+        digitalWrite(LUZ_1, HIGH);
     }
     else if((char)payload[0] == '0')
-      Luz1();
+      digitalWrite(LUZ_1, LOW);
   }
 
 
     if (strcmp(topic, MQTT_TOPIC2_COMMAND) == 0){
       if ((char)payload[0] == '1') {
-        Luz2();
+        digitalWrite(LUZ_2, HIGH);
     }
     else if((char)payload[0] == '0')
-      Luz2();
+        digitalWrite(LUZ_2, LOW);
   }
 
 
     if (strcmp(topic, MQTT_TOPIC3_COMMAND) == 0){
       if ((char)payload[0] == '1') {
-        Luz3();
+        digitalWrite(LUZ_3, HIGH);
     }
     else if((char)payload[0] == '0')
-      Luz3();
+      digitalWrite(LUZ_3, LOW);
   }
 
 
     if (strcmp(topic, MQTT_TOPIC4_COMMAND) == 0){
       if ((char)payload[0] == '1') {
-        Luz4();
+        digitalWrite(LUZ_4, HIGH);
     }
     else if((char)payload[0] == '0')
-      Luz4();
+      digitalWrite(LUZ_4, LOW);
   }
 
     if (strcmp(topic, MQTT_GENERALTOPIC_COMMAND) == 0){
       if ((char)payload[0] == '1') {
-        Luz1();
-        Luz2();
-        Luz3();
-        Luz4();
+        digitalWrite(LUZ_1, HIGH);
+        digitalWrite(LUZ_2, HIGH);
+        digitalWrite(LUZ_3, HIGH);
+        digitalWrite(LUZ_4, HIGH);
         client.publish(MQTT_GENERALTOPIC_STATE, "1", true);
+        client.publish(MQTT_TOPIC1_STATE, "1", true);
+        client.publish(MQTT_TOPIC2_STATE, "1", true);
+        client.publish(MQTT_TOPIC3_STATE, "1", true);
+        client.publish(MQTT_TOPIC4_STATE, "1", true);
         
     }
     
     else if((char)payload[0] == '0'){
-        Luz1();
-        Luz2();
-        Luz3();
-        Luz4();
+        digitalWrite(LUZ_1, LOW);
+        digitalWrite(LUZ_2, LOW);
+        digitalWrite(LUZ_3, LOW);
+        digitalWrite(LUZ_4, LOW);
         client.publish(MQTT_GENERALTOPIC_STATE, "0", true);
+        client.publish(MQTT_TOPIC1_STATE, "0", true);
+        client.publish(MQTT_TOPIC2_STATE, "0", true);
+        client.publish(MQTT_TOPIC3_STATE, "0", true);
+        client.publish(MQTT_TOPIC4_STATE, "0", true);
   }
  }
 }
